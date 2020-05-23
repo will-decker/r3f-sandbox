@@ -1,8 +1,30 @@
-import React, { useState } from 'react';
-import { Canvas } from 'react-three-fiber';
+import React, { useState, useRef } from 'react';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { Canvas, extend, useThree, useFrame } from 'react-three-fiber';
 import { useSpring, a } from 'react-spring/three';
 
+// Dependencies for enabling game loop
+// useRef from react
+// useFrame from react-three-fiber
+
+extend({ OrbitControls });
+
+const Controls = () => {
+  const orbitRef = useRef();
+  const { camera, gl } = useThree();
+
+  useFrame(() => {
+    orbitRef.current.update();
+  });
+
+  return (
+    <orbitControls autoRotate args={[camera, gl.domElement]} ref={orbitRef} />
+  );
+};
+
 const Box = () => {
+  // Loop animation ref
+  // const meshRef = useRef();
   const [hovered, setHovered] = useState(false);
   const [active, setActive] = useState(false);
   const props = useSpring({
@@ -10,8 +32,14 @@ const Box = () => {
     color: hovered ? 'purple' : 'gray',
   });
 
+  //Game Loop animation - rotating cube
+  // useFrame(() => {
+  //   meshRef.current.rotation.y += 0.01;
+  // });
+
   return (
     <a.mesh
+      // ref={meshRef}
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
       onClick={() => setActive(!active)}
@@ -23,12 +51,11 @@ const Box = () => {
   );
 };
 
-function App() {
+export default () => {
   return (
     <Canvas>
+      <Controls />
       <Box />
     </Canvas>
   );
-}
-
-export default App;
+};
